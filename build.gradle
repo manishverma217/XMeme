@@ -1,0 +1,90 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'jacoco'
+}
+jacoco { //Please do not change this
+    toolVersion = "0.8.4"
+    reportsDir = file("$buildDir/jacoco")
+}
+
+jacocoTestReport { //Please do not change this
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled false
+        xml.destination file("./jacoco.xml")
+    }
+}
+
+application {
+    mainClassName = 'com.backend.Main'
+}
+group 'com.backend'
+version '1.0-SNAPSHOT'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jar {
+    archiveBaseName = 'xmeme' //Please do not change this final artifact name
+    version =  null               //Please do not change this final artifact version
+    manifest {
+        attributes 'Main-Class' : 'com.backend.Main' //This is main class of your program which will be executed
+    }
+
+    // To create a single jar with all dependencies.
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+}
+
+test { ///Please do not change this
+    useJUnitPlatform()
+    testLogging {
+        events "PASSED", "SKIPPED", "FAILED", "STANDARD_ERROR"
+    }
+    finalizedBy jacocoTestReport // report is always generated after tests run
+    afterSuite { desc, result ->
+        if (!desc.parent)
+            println("${result.resultType} " +
+                    "(${result.testCount} tests, " +
+                    "${result.successfulTestCount} successes, " +
+                    "${result.failedTestCount} failures, " +
+                    "${result.skippedTestCount} skipped)")
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.mockito:mockito-core:3.9.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.3.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp:2.7.1'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb:2.7.1'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.1'
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.7.1'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    testImplementation 'com.h2database:h2:2.1.214'
+
+    implementation 'mysql:mysql-connector-java:8.0.29'
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.1'
+    //testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.7.1'
+    // testImplementation 'org.springframework.amqp:spring-rabbit-test:2.7.1'
+    // https://mvnrepository.com/artifact/de.flapdoodle.embed/de.flapdoodle.embed.mongo
+    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.12.0'
+    // https://mvnrepository.com/artifact/org.springframework.amqp/spring-rabbit-test
+    testImplementation 'org.springframework.amqp:spring-rabbit-test'
+}
+
+test {
+    useJUnitPlatform()
+}
